@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en" class="dark:bg-gray-900">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your QR Code - Download</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'media'
+        }
+    </script>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 min-h-screen py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-3xl mx-auto bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden p-8">
+        <h1 class="text-3xl font-bold text-center text-gray-900 dark:text-white mb-4">Your QR Code is Ready!</h1>
+        
+        <div class="mb-8 p-4 bg-green-50 dark:bg-green-900 rounded-lg">
+            <h2 class="text-lg font-semibold text-green-800 dark:text-green-200 mb-2">How to Save Your QR Code</h2>
+            <ul class="text-sm text-green-700 dark:text-green-300 space-y-2">
+                <li>1. Your QR code for <span id="platformInfo" class="font-semibold"></span> is displayed below</li>
+                <li>2. Choose your preferred size using the buttons below the QR code</li>
+                <li>3. Press and hold the QR code image (or right-click on desktop)</li>
+                <li>4. Select "Save Image" or "Download Image"</li>
+                <li id="saveLocation">5. The QR code will be saved to your phone's gallery</li>
+            </ul>
+        </div>
+
+        <div class="mb-8 p-4 bg-blue-50 dark:bg-blue-900 rounded-lg">
+            <h2 class="text-lg font-semibold text-blue-800 dark:text-blue-200 mb-2">Next Steps</h2>
+            <ul class="text-sm text-blue-700 dark:text-blue-300 space-y-2">
+                <li>• Print your QR code and display it in your booth</li>
+                <li>• Customers can scan it with their phone camera</li>
+                <li>• They'll be taken directly to your social media page</li>
+            </ul>
+        </div>
+        
+        <div id="qrCode" class="mt-8">
+            <div class="flex flex-col items-center">
+                <!-- QR Code Container that adapts to content -->
+                <div class="relative flex items-center justify-center mb-4">
+                    <!-- Loading Spinner -->
+                    <div id="loadingSpinner" class="absolute inset-0 flex items-center justify-center bg-white dark:bg-gray-800">
+                        <div class="animate-spin rounded-full h-16 w-16 border-b-2 border-indigo-600 dark:border-indigo-400"></div>
+                    </div>
+                    
+                    <!-- QR Code Image -->
+                    <img class="object-contain" alt="QR Code" onload="hideSpinner()" onerror="hideSpinner()">
+                </div>
+
+                <!-- Save Hints -->
+                <div>
+                    <!-- Mobile Save Hint -->
+                    <div id="mobileTip" class="hidden text-center text-sm text-gray-600 dark:text-gray-400">
+                        Press and hold image to save to your photos
+                    </div>
+                    
+                    <!-- Desktop Save Hint -->
+                    <div id="desktopTip" class="hidden text-center text-sm text-gray-600 dark:text-gray-400">
+                        Right-click image to save
+                    </div>
+                </div>
+                
+                <!-- Size indicator -->
+                <div class="text-sm text-gray-500 dark:text-gray-400">
+                    Size: <span id="sizeIndicator">300×300</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-6 flex justify-center gap-4">
+            <button onclick="changeSize(200)" 
+                    id="smallBtn"
+                    class="px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded-md text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
+                Small
+            </button>
+            <button onclick="changeSize(300)" 
+                    id="mediumBtn"
+                    class="px-4 py-2 bg-indigo-600 text-white dark:bg-indigo-500 rounded-md text-sm font-medium hover:bg-indigo-700 dark:hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                Medium
+            </button>
+            <button onclick="changeSize(400)" 
+                    id="largeBtn"
+                    class="px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded-md text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
+                Large
+            </button>
+        </div>
+
+        <div class="mt-8 text-center">
+            <a href="/" 
+               class="inline-flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800">
+                Generate Another QR Code
+            </a>
+        </div>
+
+        <div class="mt-8 pt-4 border-t border-gray-200 dark:border-gray-700">
+            <p class="text-center text-sm text-gray-500 dark:text-gray-400">
+                Powered by 
+                <a href="https://nerdyworks.com?ref=social_media_qr_generator" 
+                   class="font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
+                   target="_blank" 
+                   rel="noopener noreferrer">
+                    Nerdy Works
+                </a>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        let currentImgUrl = null;
+
+        async function generateQR(size) {
+            const platform = sessionStorage.getItem('platform');
+            const username = sessionStorage.getItem('username');
+            
+            // Show loading spinner
+            document.getElementById('loadingSpinner').style.display = 'flex';
+            
+            try {
+                const email = localStorage.getItem('userEmail');
+                const response = await fetch('/generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        [platform.toLowerCase()]: username,
+                        size: size,
+                        isRefresh: true,
+                        email: email
+                    }),
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const blob = await response.blob();
+                if (currentImgUrl) {
+                    URL.revokeObjectURL(currentImgUrl);
+                }
+                currentImgUrl = URL.createObjectURL(blob);
+                return currentImgUrl;
+            } catch (error) {
+                console.error('Error generating QR code:', error);
+                // You might want to show an error message to the user here
+            } finally {
+                // Hide loading spinner
+                document.getElementById('loadingSpinner').style.display = 'none';
+            }
+        }
+
+        function updateButtonStyles(selectedSize) {
+            // Reset all buttons to default style
+            document.querySelectorAll('#smallBtn, #mediumBtn, #largeBtn').forEach(btn => {
+                btn.className = "px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded-md text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500";
+            });
+            
+            // Style the selected button
+            const selectedBtn = document.getElementById(
+                selectedSize === 200 ? 'smallBtn' : 
+                selectedSize === 300 ? 'mediumBtn' : 'largeBtn'
+            );
+            selectedBtn.className = "px-4 py-2 bg-indigo-600 text-white dark:bg-indigo-500 rounded-md text-sm font-medium hover:bg-indigo-700 dark:hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500";
+        }
+
+        // Add this function to properly hide the spinner
+        function hideSpinner() {
+            document.getElementById('loadingSpinner').style.display = 'none';
+        }
+
+        // Update the changeSize function to handle errors
+        async function changeSize(size) {
+            try {
+                const imgUrl = await generateQR(size);
+                if (imgUrl) {  // Only update if we got a valid URL
+                    const img = document.querySelector('#qrCode img');
+                    img.src = imgUrl;
+                    img.style.width = `${size}px`;
+                    img.style.height = `${size}px`;
+                    document.getElementById('sizeIndicator').textContent = `${size}×${size}`;
+                    updateButtonStyles(size);
+                }
+            } catch (error) {
+                console.error('Error changing size:', error);
+            }
+        }
+
+        // Function to detect if user is on mobile
+        function isMobileDevice() {
+            return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        }
+
+        // Show appropriate tip based on device
+        window.onload = async function() {
+            const platform = sessionStorage.getItem('platform');
+            const username = sessionStorage.getItem('username');
+            
+            if (!platform || !username) {
+                window.location.href = '/';
+                return;
+            }
+
+            // Show appropriate tip
+            if (isMobileDevice()) {
+                document.getElementById('mobileTip').classList.remove('hidden');
+            } else {
+                document.getElementById('desktopTip').classList.remove('hidden');
+            }
+
+            document.getElementById('platformInfo').textContent = 
+                `${platform} (${username})`;
+            
+            const imgUrl = await generateQR(300);
+            const img = document.querySelector('#qrCode img');
+            img.src = imgUrl;
+            img.style.width = '300px';
+            img.style.height = '300px';
+            updateButtonStyles(300);
+
+            // Update save location text based on device
+            const saveLocationElement = document.getElementById('saveLocation');
+            if (isMobileDevice()) {
+                saveLocationElement.textContent = "5. The QR code will be saved to your phone's gallery";
+            } else {
+                saveLocationElement.textContent = "5. The QR code will be saved to your computer's downloads folder";
+            }
+        };
+    </script>
+</body>
+</html>
