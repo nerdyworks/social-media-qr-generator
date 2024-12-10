@@ -7,10 +7,10 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Serve static files for UI (optional)
+// Serve static files for UI
 app.use(express.static('public'));
 
-// Add rate limiting middleware
+// Rate limiting
 const limiter = rateLimit({
     windowMs: 24 * 60 * 60 * 1000, // 24 hours
     max: 50, // limit each IP to 50 requests per windowMs
@@ -21,7 +21,6 @@ const limiter = rateLimit({
     }
 });
 
-// Add this after your other middleware setup
 app.use((req, res, next) => {
     res.setHeader('X-Robots-Tag', 'noindex, nofollow');
     next();
@@ -67,17 +66,15 @@ app.post('/generate', limiter, async (req, res) => {
     }
 });
 
-// Add a route for the root path
 app.get('/', (req, res) => {
     res.sendFile('index.html', { root: './public' });
 });
 
-// Add a route for the download page
 app.get('/download', (req, res) => {
     res.sendFile('download.html', { root: './public' });
 });
 
-// Listen on a port
+// Listen on port 3000
 const PORT = 3000;
 app.listen(PORT, () => {
     console.log(`QR Generator running at http://localhost:${PORT}`);
