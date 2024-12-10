@@ -5,11 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Your QR Code - Download</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'media'
-        }
-    </script>
 </head>
 <body class="bg-gray-100 dark:bg-gray-900 min-h-screen py-12 px-4 sm:px-6 lg:px-8">
     <div class="max-w-3xl mx-auto bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden p-8">
@@ -141,20 +136,18 @@
                 return currentImgUrl;
             } catch (error) {
                 console.error('Error generating QR code:', error);
-                // You might want to show an error message to the user here
             } finally {
                 // Hide loading spinner
                 document.getElementById('loadingSpinner').style.display = 'none';
             }
         }
-
+        // Styling for selected size button
         function updateButtonStyles(selectedSize) {
-            // Reset all buttons to default style
             document.querySelectorAll('#smallBtn, #mediumBtn, #largeBtn').forEach(btn => {
                 btn.className = "px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded-md text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500";
             });
             
-            // Style the selected button
+            // Style the selected size button
             const selectedBtn = document.getElementById(
                 selectedSize === 200 ? 'smallBtn' : 
                 selectedSize === 300 ? 'mediumBtn' : 'largeBtn'
@@ -162,16 +155,16 @@
             selectedBtn.className = "px-4 py-2 bg-indigo-600 text-white dark:bg-indigo-500 rounded-md text-sm font-medium hover:bg-indigo-700 dark:hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500";
         }
 
-        // Add this function to properly hide the spinner
+        // Hide loading spinner
         function hideSpinner() {
             document.getElementById('loadingSpinner').style.display = 'none';
         }
 
-        // Update the changeSize function to handle errors
+        // Update image size based on button selected
         async function changeSize(size) {
             try {
                 const imgUrl = await generateQR(size);
-                if (imgUrl) {  // Only update if we got a valid URL
+                if (imgUrl) {
                     const img = document.querySelector('#qrCode img');
                     img.src = imgUrl;
                     img.style.width = `${size}px`;
