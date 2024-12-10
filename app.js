@@ -1,7 +1,6 @@
 import express from 'express';
 import QRCode from 'qrcode';
 import rateLimit from 'express-rate-limit';
-import { createCanvas, loadImage } from 'canvas';
 
 const app = express();
 app.use(express.json());
