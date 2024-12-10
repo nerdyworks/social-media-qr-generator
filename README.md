@@ -13,17 +13,21 @@ A simple, fast, and user-friendly QR code generator for social media profiles. T
 
 ## Installation
 
-# Clone the repository:
-```git clone https://github.com/nerdyworks/social-media-qr-generator.git 
+### Clone the repository:
+```
+git clone https://github.com/nerdyworks/social-media-qr-generator.git 
 cd social-media-qr-generator
 ```
 
-# Install dependencies:
-```npm install
+### Install dependencies:
+```
+npm install
 ```
 
-# Start the server:
-```node app.js```
+### Start the server:
+```
+node app.js
+```
 
 The application will be available at `http://localhost:3000`
 
